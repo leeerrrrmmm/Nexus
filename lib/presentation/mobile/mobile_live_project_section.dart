@@ -67,7 +67,6 @@ class _MobileLiveProjectsSectionState extends State<MobileLiveProjectsSection>
   Widget build(BuildContext context) {
     final Color activeColor = _getCurrentColor(_currentIndex);
 
-    // Разбиваем описание на абзацы, если в тексте есть двойной перенос строки
     final String rawDescription =
         AppText.mobileLiveProjectsDescription[_currentIndex];
     final List<String> paragraphs = rawDescription
@@ -83,7 +82,6 @@ class _MobileLiveProjectsSectionState extends State<MobileLiveProjectsSection>
       decoration: const BoxDecoration(color: Colors.black),
       child: Stack(
         children: [
-          // === Мягкая цветная подсветка фона ===
           AnimatedContainer(
             duration: const Duration(milliseconds: 1200),
             curve: Curves.easeInOut,
@@ -108,13 +106,12 @@ class _MobileLiveProjectsSectionState extends State<MobileLiveProjectsSection>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // === Верхний блок: заголовок + линия + лого ===
-                    SizedBox(
-                      height: 340.h,
+                    const _MetallicTitle(lines: ['LIVE MOBILE', 'APP']),
+                    SizedBox(height: 20.h),
+                    Expanded(
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
-                          // Декоративная S-образная линия
                           Positioned.fill(
                             child: CustomPaint(
                               painter: _CurvedLinePainter(
@@ -122,112 +119,110 @@ class _MobileLiveProjectsSectionState extends State<MobileLiveProjectsSection>
                               ),
                             ),
                           ),
-
-                          // Заголовок
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 140.w,
-                            child: _MetallicTitle(
-                              lines: const ['LIVE MOBILE', 'APP'],
-                            ),
-                          ),
-
-                          // Лого проекта
-                          Positioned(
-                            right: 0,
-                            top: 130.h,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              switchInCurve: Curves.easeOutCubic,
-                              switchOutCurve: Curves.easeInCubic,
-                              transitionBuilder: (child, animation) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: ScaleTransition(
-                                    scale: Tween<double>(
-                                      begin: 0.85,
-                                      end: 1,
-                                    ).animate(animation),
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                key: ValueKey<int>(_currentIndex),
-                                width: 170.w,
-                                height: 170.w,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: activeColor.withValues(
-                                        alpha: 0.35,
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: SizedBox(
+                              width: 0.5.sw,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  AnimatedSwitcher(
+                                    duration: const Duration(milliseconds: 500),
+                                    switchInCurve: Curves.easeOutCubic,
+                                    switchOutCurve: Curves.easeInCubic,
+                                    transitionBuilder: (child, animation) {
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: ScaleTransition(
+                                          scale: Tween<double>(
+                                            begin: 0.85,
+                                            end: 1,
+                                          ).animate(animation),
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      key: ValueKey<int>(_currentIndex),
+                                      width: 140.w,
+                                      height: 140.w,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: activeColor.withValues(
+                                              alpha: 0.35,
+                                            ),
+                                            blurRadius: 40,
+                                            spreadRadius: 4,
+                                          ),
+                                        ],
                                       ),
-                                      blurRadius: 40,
-                                      spreadRadius: 4,
+                                      child: ClipOval(
+                                        child: Image.asset(
+                                          _projectImages[_currentIndex %
+                                              _projectImages.length],
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                     ),
-                                  ],
-                                ),
-                                child: ClipOval(
-                                  child: Image.asset(
-                                    _projectImages[_currentIndex %
-                                        _projectImages.length],
-                                    fit: BoxFit.cover,
                                   ),
-                                ),
+                                  SizedBox(height: 16.h),
+                                  Expanded(
+                                    child: SingleChildScrollView(
+                                      child: AnimatedSwitcher(
+                                        duration: const Duration(
+                                          milliseconds: 450,
+                                        ),
+                                        switchInCurve: Curves.easeOutCubic,
+                                        switchOutCurve: Curves.easeInCubic,
+                                        child: Column(
+                                          key: ValueKey<int>(_currentIndex),
+                                          children: [
+                                            for (
+                                              int i = 0;
+                                              i < paragraphs.length;
+                                              i++
+                                            ) ...[
+                                              Text(
+                                                paragraphs[i],
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.75),
+                                                  fontSize: 9.sp,
+                                                  height: 1.7,
+                                                  letterSpacing: 0.4,
+                                                  fontFamily: 'Kosugi',
+                                                ),
+                                              ),
+                                              if (i != paragraphs.length - 1)
+                                                SizedBox(height: 14.h),
+                                            ],
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-
-                    SizedBox(height: 46.h),
-
-                    // === Описание проекта ===
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 450),
-                          switchInCurve: Curves.easeOutCubic,
-                          switchOutCurve: Curves.easeInCubic,
-                          child: Column(
-                            key: ValueKey<int>(_currentIndex),
-                            children: [
-                              for (int i = 0; i < paragraphs.length; i++) ...[
-                                Text(
-                                  paragraphs[i],
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.75),
-                                    fontSize: 9.sp,
-                                    height: 1.7,
-                                    letterSpacing: 0.4,
-                                    fontFamily: 'Kosugi',
-                                  ),
-                                ),
-                                if (i != paragraphs.length - 1)
-                                  SizedBox(height: 14.h),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 10.h),
-                    PortfolioTextLinkButton(
-                      label: _currentIndex == 0
-                          ? AppText.openPlayStore
-                          : AppText.openProject,
-                      link: PortfolioLinkX.fromLiveProjectIndex(_currentIndex),
-                      fontSize: 12.sp,
-                    ),
                     SizedBox(height: 12.h),
-
-                    // === Индикаторы-точки ===
+                    if (_currentIndex == 0)
+                      PortfolioTextLinkButton(
+                        label: AppText.openPlayStore,
+                        link: PortfolioLinkX.fromLiveProjectIndex(
+                          _currentIndex,
+                        ),
+                        fontSize: 12.sp,
+                      )
+                    else
+                      const _InProgressBadge(),
+                    SizedBox(height: 12.h),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(_projectCount, (i) {
@@ -255,10 +250,10 @@ class _MobileLiveProjectsSectionState extends State<MobileLiveProjectsSection>
             ),
           ),
 
-          // Left / right swipe zones (top area only — keep Open button tappable)
+          // Left / right tap zones (keep CTA + dots tappable)
           Positioned(
             top: 0,
-            height: 0.38.sh,
+            height: 0.42.sh,
             left: 0,
             right: 0,
             child: Row(
@@ -287,7 +282,34 @@ class _MobileLiveProjectsSectionState extends State<MobileLiveProjectsSection>
   }
 }
 
-// === Металлический заголовок ===
+class _InProgressBadge extends StatelessWidget {
+  const _InProgressBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 120.w,
+      height: 36.h,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(width: 2.5, color: const Color(0xFF997530)),
+      ),
+      child: Center(
+        child: Text(
+          AppText.liveProjectsInProgress,
+          style: TextStyle(
+            color: const Color(0xFF997530),
+            fontSize: 12.sp,
+            height: 1.5,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Kosugi',
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _MetallicTitle extends StatelessWidget {
   final List<String> lines;
 
@@ -332,7 +354,6 @@ class _MetallicTitle extends StatelessWidget {
   }
 }
 
-// === Декоративная S-образная линия ===
 class _CurvedLinePainter extends CustomPainter {
   final Color glowColor;
 
@@ -359,7 +380,6 @@ class _CurvedLinePainter extends CustomPainter {
         size.height,
       );
 
-    // Свечение
     final glowPaint = Paint()
       ..color = glowColor.withValues(alpha: 0.45)
       ..style = PaintingStyle.stroke
@@ -368,7 +388,6 @@ class _CurvedLinePainter extends CustomPainter {
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14);
     canvas.drawPath(path, glowPaint);
 
-    // Основная линия с градиентом
     final linePaint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topCenter,

@@ -217,13 +217,38 @@ class _TabletLiveProjectSectionState extends State<TabletLiveProjectSection>
                     ),
 
                     SizedBox(height: 16.h),
-                    PortfolioTextLinkButton(
-                      label: _currentIndex == 0
-                          ? AppText.openPlayStore
-                          : AppText.openProject,
-                      link: PortfolioLinkX.fromLiveProjectIndex(_currentIndex),
-                      fontSize: 15.sp,
-                    ),
+                    if (_currentIndex == 0)
+                      PortfolioTextLinkButton(
+                        label: AppText.openPlayStore,
+                        link: PortfolioLinkX.fromLiveProjectIndex(
+                          _currentIndex,
+                        ),
+                        fontSize: 15.sp,
+                      )
+                    else
+                      Container(
+                        width: 140.w,
+                        height: 42.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14.r),
+                          border: Border.all(
+                            width: 3,
+                            color: const Color(0xFF997530),
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            AppText.liveProjectsInProgress,
+                            style: TextStyle(
+                              color: const Color(0xFF997530),
+                              fontSize: 15.sp,
+                              height: 1.5,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Kosugi',
+                            ),
+                          ),
+                        ),
+                      ),
                     SizedBox(height: 20.h),
 
                     // Индикаторы-точки

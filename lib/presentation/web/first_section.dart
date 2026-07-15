@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
@@ -17,7 +18,7 @@ class _FirstSectionContentState extends State<FirstSectionContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   final List<_GlowParticle> _particles = [];
-  final int _particleCount = 10;
+  int get _particleCount => kIsWeb ? 4 : 10;
 
   @override
   void initState() {
@@ -91,33 +92,41 @@ class _FirstSectionContentState extends State<FirstSectionContent>
               width: double.infinity,
               height: 315.h,
               child: ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xff2C2C2C).withValues(alpha: 0.6),
-                      border: Border(
-                        top: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          width: 1.w,
+                child: Builder(
+                  builder: (context) {
+                    final band = Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xff2C2C2C).withValues(
+                          alpha: kIsWeb ? 0.82 : 0.6,
                         ),
-                        bottom: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          width: 1.w,
-                        ),
-                      ),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 20.w),
-                        child: GlassText(
-                          text: AppText.portfolioText,
-                          fontSize: 248.sp,
-                          letterSpacing: -19.0,
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            width: 1.w,
+                          ),
+                          bottom: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            width: 1.w,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 20.w),
+                          child: GlassText(
+                            text: AppText.portfolioText,
+                            fontSize: 248.sp,
+                            letterSpacing: -19.0,
+                          ),
+                        ),
+                      ),
+                    );
+                    if (kIsWeb) return band;
+                    return BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                      child: band,
+                    );
+                  },
                 ),
               ),
             ),

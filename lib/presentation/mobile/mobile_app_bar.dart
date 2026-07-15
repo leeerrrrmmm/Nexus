@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MobileAppBar extends StatelessWidget {
@@ -25,29 +26,26 @@ class MobileAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.45),
-            border: Border(
-              bottom: BorderSide(
-                color: Colors.white.withValues(alpha: 0.06),
-                width: 1,
-              ),
-            ),
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.white.withValues(alpha: 0.07),
-                Colors.transparent,
-              ],
-              stops: const [0.0, 0.3],
-            ),
+    final bar = Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: kIsWeb ? 0.88 : 0.45),
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.white.withValues(alpha: 0.06),
+            width: 1,
           ),
+        ),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white.withValues(alpha: 0.07),
+            Colors.transparent,
+          ],
+          stops: const [0.0, 0.3],
+        ),
+      ),
           child: SafeArea(
             bottom: false,
             child: Padding(
@@ -180,8 +178,15 @@ class MobileAppBar extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ),
+    );
+
+    return ClipRect(
+      child: kIsWeb
+          ? bar
+          : BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: bar,
+            ),
     );
   }
 }

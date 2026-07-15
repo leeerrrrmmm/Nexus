@@ -25,6 +25,8 @@ class _LiveProjectsSectionState extends State<LiveProjectsSection>
     'assets/images/sous_vide_logo.png',
   ];
 
+  int get _projectCount => AppText.liveProjectsDescription.length;
+
   @override
   void initState() {
     super.initState();
@@ -35,19 +37,21 @@ class _LiveProjectsSectionState extends State<LiveProjectsSection>
 
     _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        if (!mounted) return;
-        setState(() {
-          _currentIndex =
-              (_currentIndex + 1) % AppText.liveProjectsDescription.length;
-        });
-        _animationController.reset();
-        _animationController.forward();
+        _goToIndex((_currentIndex + 1) % _projectCount);
       }
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _animationController.forward();
     });
+  }
+
+  void _goToIndex(int index) {
+    if (!mounted) return;
+    setState(() => _currentIndex = index);
+    _animationController
+      ..reset()
+      ..forward();
   }
 
   @override
@@ -120,35 +124,60 @@ class _LiveProjectsSectionState extends State<LiveProjectsSection>
             top: 0,
             bottom: 0,
             right: 0.1.sw,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 800),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: ScaleTransition(
-                    scale: Tween<double>(
-                      begin: 0.94,
-                      end: 1.0,
-                    ).animate(animation),
-                    child: child,
+            child: IgnorePointer(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 800),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: Tween<double>(
+                        begin: 0.94,
+                        end: 1.0,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: SizedBox(
+                  key: ValueKey<int>(_currentIndex),
+                  width: 500.w,
+                  height: 500.h,
+                  child: Image.asset(
+                    _projectImages[_currentIndex % _projectImages.length],
+                    fit: BoxFit.contain,
                   ),
-                );
-              },
-              child: SizedBox(
-                key: ValueKey<int>(_currentIndex),
-                width: 500.w,
-                height: 500.h,
-                child: Image.asset(
-                  _projectImages[_currentIndex % _projectImages.length],
-                  fit: BoxFit.contain,
                 ),
               ),
             ),
           ),
 
-          // 3. ОСНОВНОЙ КОНТЕНТ (слева)
+          // Left / right tap zones — 20s auto-rotate resets on tap
+          Positioned.fill(
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => _goToIndex(
+                      (_currentIndex - 1 + _projectCount) % _projectCount,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () =>
+                        _goToIndex((_currentIndex + 1) % _projectCount),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ОСНОВНОЙ КОНТЕНТ (поверх зон тапа; кнопка остаётся кликабельной)
           Positioned.fill(
             child: Padding(
               padding: EdgeInsets.fromLTRB(10.w, 10.h, 30.w, 4.h),
@@ -160,34 +189,38 @@ class _LiveProjectsSectionState extends State<LiveProjectsSection>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GlassText(
-                          letterSpacing: 10.sp,
-                          text: AppText.liveProjectsTitle,
-                          fontSize: 100.sp,
-                          fontFamily: 'Kokh',
+                        IgnorePointer(
+                          child: GlassText(
+                            letterSpacing: 10.sp,
+                            text: AppText.liveProjectsTitle,
+                            fontSize: 100.sp,
+                            fontFamily: 'Kokh',
+                          ),
                         ),
                         SizedBox(height: 24.h),
                         Flexible(
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 600),
-                            switchInCurve: Curves.easeInOutCubic,
-                            switchOutCurve: Curves.easeInOutCubic,
-                            child: Align(
-                              key: ValueKey<int>(_currentIndex),
-                              alignment: Alignment.topLeft,
-                              child: SizedBox(
-                                width: 465.w,
-                                child: SingleChildScrollView(
-                                  child: Text(
-                                    AppText
-                                        .liveProjectsDescription[_currentIndex],
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.75,
+                          child: IgnorePointer(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 600),
+                              switchInCurve: Curves.easeInOutCubic,
+                              switchOutCurve: Curves.easeInOutCubic,
+                              child: Align(
+                                key: ValueKey<int>(_currentIndex),
+                                alignment: Alignment.topLeft,
+                                child: SizedBox(
+                                  width: 465.w,
+                                  child: SingleChildScrollView(
+                                    child: Text(
+                                      AppText.liveProjectsDescription[
+                                          _currentIndex],
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.75,
+                                        ),
+                                        fontSize: 20.sp,
+                                        height: 1.5,
+                                        fontFamily: 'Kosugi',
                                       ),
-                                      fontSize: 20.sp,
-                                      height: 1.5,
-                                      fontFamily: 'Kosugi',
                                     ),
                                   ),
                                 ),
@@ -200,27 +233,29 @@ class _LiveProjectsSectionState extends State<LiveProjectsSection>
                           switchInCurve: Curves.easeInOutCubic,
                           switchOutCurve: Curves.easeInOutCubic,
                           child: _currentIndex == 1
-                              ? Container(
+                              ? IgnorePointer(
                                   key: const ValueKey<String>('badge_visible'),
-                                  margin: EdgeInsets.only(top: 14.h),
-                                  width: 151.w,
-                                  height: 47.h,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(14.r),
-                                    border: Border.all(
-                                      width: 3,
-                                      color: const Color(0xFF997530),
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      AppText.liveProjectsInProgress,
-                                      style: TextStyle(
+                                  child: Container(
+                                    margin: EdgeInsets.only(top: 14.h),
+                                    width: 151.w,
+                                    height: 47.h,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(14.r),
+                                      border: Border.all(
+                                        width: 3,
                                         color: const Color(0xFF997530),
-                                        fontSize: 20.sp,
-                                        height: 1.5,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Kosugi',
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        AppText.liveProjectsInProgress,
+                                        style: TextStyle(
+                                          color: const Color(0xFF997530),
+                                          fontSize: 20.sp,
+                                          height: 1.5,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Kosugi',
+                                        ),
                                       ),
                                     ),
                                   ),

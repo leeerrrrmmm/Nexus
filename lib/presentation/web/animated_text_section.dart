@@ -65,20 +65,22 @@ class _AnimatedTextSectionState extends State<AnimatedTextSection>
       height: widget.isMobile ? 40.h : 92.h,
       width: double.infinity,
       child: ClipRect(
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const NeverScrollableScrollPhysics(),
-          child: AnimatedBuilder(
-            animation: _animationController,
-            builder: (context, child) {
-              return FractionalTranslation(
-                translation: Offset(-_animationController.value * 0.5, 0),
-                child: child,
-              );
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [rowContent, rowContent, rowContent, rowContent],
+        child: RepaintBoundary(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+            child: AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, child) {
+                return FractionalTranslation(
+                  translation: Offset(-_animationController.value * 0.5, 0),
+                  child: child,
+                );
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [rowContent, rowContent, rowContent, rowContent],
+              ),
             ),
           ),
         ),

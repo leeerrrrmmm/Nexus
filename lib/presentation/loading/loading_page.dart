@@ -18,25 +18,14 @@ class _LoadingScreenState extends State<LoadingScreen>
   late Animation<double> _progressAnim;
   late AnimationController _transitionController;
 
+  // Only decode what is needed for first paint — rest loads lazily.
   final List<String> assetsToPreload = [
+    'assets/images/bg.png',
+    'assets/images/me.png',
+    'assets/images/project_bg.png',
+    'assets/images/collabix_oreview.png',
     'assets/images/acta_logo.png',
     'assets/images/sous_vide_logo.png',
-    'assets/images/back_pattern.png',
-    'assets/images/bg.png',
-    'assets/images/collabix_oreview.png',
-    'assets/images/contact_me_img.png',
-    'assets/images/content_flipper.png',
-    'assets/images/curl_text_lib.png',
-    'assets/images/echat.png',
-    'assets/images/flod_lib.png',
-    'assets/images/i.png',
-    'assets/images/lib_bg.png',
-    'assets/images/me.png',
-    'assets/images/mind_map.png',
-    'assets/images/project_bg.png',
-    'assets/images/row.png',
-    'assets/images/slack.png',
-    'assets/images/sous_vide.png',
   ];
 
   bool _preloadStarted = false;
@@ -80,22 +69,24 @@ class _LoadingScreenState extends State<LoadingScreen>
 
   Future<void> _preloadAssets() async {
     final total = assetsToPreload.length;
-    for (int i = 0; i < total; i++) {
+    // Precache in parallel batches to cut wait without decoding everything.
+    const batchSize = 3;
+    for (int i = 0; i < total; i += batchSize) {
       if (!mounted) return;
-      await precacheImage(AssetImage(assetsToPreload[i]), context);
+      final end = (i + batchSize).clamp(0, total);
+      await Future.wait([
+        for (int j = i; j < end; j++)
+          precacheImage(AssetImage(assetsToPreload[j]), context),
+      ]);
       _progressController.animateTo(
-        (i + 1) / total,
-        duration: const Duration(milliseconds: 220),
+        end / total,
+        duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
       );
-      await Future.delayed(const Duration(milliseconds: 60));
     }
     if (!mounted) return;
-    await Future.delayed(const Duration(milliseconds: 400));
+    await Future.delayed(const Duration(milliseconds: 180));
     if (!mounted) return;
-    // Переход стартует прямо с текущей фазы цикла — loopController
-    // не останавливается и не сбрасывается, поэтому глазу не за что
-    // "зацепиться" как за обрыв анимации.
     await _startTransition();
   }
 

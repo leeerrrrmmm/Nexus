@@ -5,11 +5,11 @@ class AppAssets {
   static const String rowImage = 'assets/images/row.png';
 
   List<String> projectImages = [
-    'assets/images/collabix_oreview.png',
-    'assets/images/sous_vide.png',
-    'assets/images/slack.png',
     'assets/images/echat.png',
     'assets/images/mind_map.png',
+    'assets/images/slack.png',
+    'assets/images/collabix_oreview.png',
+    'assets/images/sous_vide.png',
   ];
 
   static const String projectBg = 'assets/images/project_bg.png';

@@ -194,15 +194,13 @@ class _MobileLibrarySectionState extends State<MobileLibrarySection> {
                                                             ? ContentFlipper(
                                                                 onBackTap: () =>
                                                                     setState(
-                                                                      () =>
-                                                                          _activeIndex =
-                                                                              index,
+                                                                      () => _activeIndex =
+                                                                          index,
                                                                     ),
                                                                 onFrontTap: () =>
                                                                     setState(
-                                                                      () =>
-                                                                          _activeIndex =
-                                                                              index,
+                                                                      () => _activeIndex =
+                                                                          index,
                                                                     ),
                                                                 front: Text(
                                                                   _libraryDescriptions[0],
@@ -211,7 +209,7 @@ class _MobileLibrarySectionState extends State<MobileLibrarySection> {
                                                                       0xFF0F172A,
                                                                     ),
                                                                     fontSize:
-                                                                        12.sp,
+                                                                        10.sp,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w500,
@@ -225,7 +223,7 @@ class _MobileLibrarySectionState extends State<MobileLibrarySection> {
                                                                       0xFF0F172A,
                                                                     ),
                                                                     fontSize:
-                                                                        12.sp,
+                                                                        10.sp,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w500,
@@ -237,7 +235,7 @@ class _MobileLibrarySectionState extends State<MobileLibrarySection> {
                                                             ? CurlTextWidget(
                                                                 text:
                                                                     _libraryDescriptions[2],
-                                                                fontSize: 12.sp,
+                                                                fontSize: 10.sp,
                                                                 textColor:
                                                                     Colors
                                                                         .white,
@@ -255,12 +253,11 @@ class _MobileLibrarySectionState extends State<MobileLibrarySection> {
                                                                     TextOverflow
                                                                         .ellipsis,
                                                                 style: TextStyle(
-                                                                  color:
-                                                                      const Color(
-                                                                        0xFF0F172A,
-                                                                      ),
+                                                                  color: const Color(
+                                                                    0xFF0F172A,
+                                                                  ),
                                                                   fontSize:
-                                                                      12.sp,
+                                                                      10.sp,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w500,
@@ -270,8 +267,7 @@ class _MobileLibrarySectionState extends State<MobileLibrarySection> {
                                                       ),
                                                     ),
                                                     PortfolioTextLinkButton(
-                                                      label:
-                                                          AppText.openPubDev,
+                                                      label: AppText.openPubDev,
                                                       link:
                                                           PortfolioLinkX.fromLibraryIndex(
                                                             index,

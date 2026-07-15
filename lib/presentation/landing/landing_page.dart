@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:portfolio/core/const/app_assets/app_assets.dart';
@@ -176,9 +177,9 @@ class _LandingPageState extends State<LandingPage> {
     );
 
     if (!launched && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open link: $rawUrl')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Could not open link: $rawUrl')));
     }
   }
 
@@ -216,12 +217,12 @@ class _LandingPageState extends State<LandingPage> {
                   onNavItemTap: _onNavTap,
                 ),
         ),
-        body: SingleChildScrollView(
+        body: CustomScrollView(
           controller: _scrollController,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Column(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Column(
                 children: [
                   Stack(
                     key: _headerKey,
@@ -232,18 +233,29 @@ class _LandingPageState extends State<LandingPage> {
                         right: 0,
                         width: screenWidth,
                         child: IgnorePointer(
-                          child: ImageFiltered(
-                            imageFilter: ImageFilter.blur(
-                              sigmaX: 4.0,
-                              sigmaY: 4.0,
-                            ),
-                            child: Image.asset(
-                              AppAssets.backgroundPatterImage,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.topCenter,
-                              color: Colors.black.withValues(alpha: 0.6),
-                              colorBlendMode: BlendMode.darken,
-                            ),
+                          child: Builder(
+                            builder: (context) {
+                              final dpr = MediaQuery.devicePixelRatioOf(
+                                context,
+                              );
+                              final image = Image.asset(
+                                AppAssets.backgroundPatterImage,
+                                fit: BoxFit.cover,
+                                alignment: Alignment.topCenter,
+                                cacheWidth: (screenWidth * dpr).round(),
+                                color: Colors.black.withValues(alpha: 0.6),
+                                colorBlendMode: BlendMode.darken,
+                                filterQuality: FilterQuality.low,
+                              );
+                              if (kIsWeb) return image;
+                              return ImageFiltered(
+                                imageFilter: ImageFilter.blur(
+                                  sigmaX: 4.0,
+                                  sigmaY: 4.0,
+                                ),
+                                child: image,
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -254,16 +266,19 @@ class _LandingPageState extends State<LandingPage> {
                       },
                     ],
                   ),
+
                   switch (deviceType) {
                     DeviceType.mobile => MobileSecondSection(key: _aboutKey),
                     DeviceType.tablet => TabletSecondSection(key: _aboutKey),
                     DeviceType.desktop => SecondSection(key: _aboutKey),
                   },
+
                   switch (deviceType) {
                     DeviceType.mobile => MobileThirdSection(key: _projectKey),
                     DeviceType.tablet => TabletThirdSection(key: _projectKey),
                     DeviceType.desktop => ThirdSection(key: _projectKey),
                   },
+
                   AnimatedTextSection(isMobile: isMobile),
 
                   switch (deviceType) {
@@ -277,12 +292,15 @@ class _LandingPageState extends State<LandingPage> {
                       key: _liveProjectsKey,
                     ),
                   },
+
                   AnimatedTextSection(isMobile: isMobile),
+
                   switch (deviceType) {
                     DeviceType.mobile => MobileLibrarySection(key: _libraryKey),
                     DeviceType.tablet => TabletLibrarySection(key: _libraryKey),
                     DeviceType.desktop => LibrarySection(key: _libraryKey),
                   },
+
                   BlocProvider(
                     create: (_) => ContactMeCubit(
                       contactMeUseCase: ContactMeUseCase(
@@ -294,17 +312,19 @@ class _LandingPageState extends State<LandingPage> {
                       ),
                     ),
                     child: switch (deviceType) {
-                      DeviceType.mobile =>
-                        MobileContactMeSection(key: _contactKey),
-                      DeviceType.tablet =>
-                        TabletContactMeSection(key: _contactKey),
+                      DeviceType.mobile => MobileContactMeSection(
+                        key: _contactKey,
+                      ),
+                      DeviceType.tablet => TabletContactMeSection(
+                        key: _contactKey,
+                      ),
                       DeviceType.desktop => ContactMeSection(key: _contactKey),
                     },
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class CustomAppBar extends StatelessWidget {
@@ -23,24 +24,19 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: BackdropFilter(
-        // Легкое размытие заднего плана для эффекта стекла
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
+    final bar = Container(
           width: double.infinity,
           height: 70,
           decoration: BoxDecoration(
             color: Colors.black.withValues(
-              alpha: 0.4,
-            ), // Полупрозрачный темный фон
+              alpha: kIsWeb ? 0.88 : 0.4,
+            ),
             border: Border(
               bottom: BorderSide(
                 color: Colors.white.withValues(alpha: 0.05),
                 width: 1,
               ),
             ),
-            // Мягкое глянцевое свечение по верхней кромке панели, как на скриншоте
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -133,8 +129,15 @@ class CustomAppBar extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
+    );
+
+    return ClipRect(
+      child: kIsWeb
+          ? bar
+          : BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: bar,
+            ),
     );
   }
 }

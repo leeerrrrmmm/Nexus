@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
@@ -37,7 +38,8 @@ class _MobileFirstSectionState extends State<MobileFirstSection>
 
     _particles.clear();
 
-    for (int i = 0; i < 6; i++) {
+    final particleCount = kIsWeb ? 3 : 6;
+    for (int i = 0; i < particleCount; i++) {
       _particles.add(
         _GlowParticle(
           size: 60.w + random.nextDouble() * 140.w,
@@ -67,28 +69,30 @@ class _MobileFirstSectionState extends State<MobileFirstSection>
         children: [
           if (_particles.isNotEmpty)
             Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return Stack(
-                    children: _particles.map((particle) {
-                      final offset = particle.getOffset(
-                        _controller.value * 2 * math.pi,
-                        screenSize,
-                      );
+              child: RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Stack(
+                      children: _particles.map((particle) {
+                        final offset = particle.getOffset(
+                          _controller.value * 2 * math.pi,
+                          screenSize,
+                        );
 
-                      return Positioned(
-                        left: offset.dx - particle.size / 2,
-                        top: offset.dy - particle.size / 2,
-                        child: _buildGlowOrb(
-                          const Color(0xff4F8BFF),
-                          particle.size,
-                          particle.opacity,
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
+                        return Positioned(
+                          left: offset.dx - particle.size / 2,
+                          top: offset.dy - particle.size / 2,
+                          child: _buildGlowOrb(
+                            const Color(0xff4F8BFF),
+                            particle.size,
+                            particle.opacity,
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
               ),
             ),
           Center(
@@ -96,33 +100,41 @@ class _MobileFirstSectionState extends State<MobileFirstSection>
               width: double.infinity,
               height: 220.h,
               child: ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xff2C2C2C).withValues(alpha: 0.6),
-                      border: Border(
-                        top: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          width: 1.w,
+                child: Builder(
+                  builder: (context) {
+                    final band = Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xff2C2C2C).withValues(
+                          alpha: kIsWeb ? 0.82 : 0.6,
                         ),
-                        bottom: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          width: 1.w,
-                        ),
-                      ),
-                    ),
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 10.w),
-                        child: GlassText(
-                          text: AppText.portfolioText,
-                          fontSize: 80.sp,
-                          letterSpacing: -6.0,
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            width: 1.w,
+                          ),
+                          bottom: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            width: 1.w,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 10.w),
+                          child: GlassText(
+                            text: AppText.portfolioText,
+                            fontSize: 80.sp,
+                            letterSpacing: -6.0,
+                          ),
+                        ),
+                      ),
+                    );
+                    if (kIsWeb) return band;
+                    return BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 4.0, sigmaY: 4.0),
+                      child: band,
+                    );
+                  },
                 ),
               ),
             ),

@@ -45,12 +45,8 @@ class _MobileContactMeSectionState extends State<MobileContactMeSection> {
   @override
   void initState() {
     super.initState();
-    _nameSpacing = AdaptiveInputTypography(
-      textController: fullNameController,
-    );
-    _emailSpacing = AdaptiveInputTypography(
-      textController: emailController,
-    );
+    _nameSpacing = AdaptiveInputTypography(textController: fullNameController);
+    _emailSpacing = AdaptiveInputTypography(textController: emailController);
     _messageSpacing = AdaptiveInputTypography(
       textController: messageController,
     );
@@ -99,6 +95,11 @@ class _MobileContactMeSectionState extends State<MobileContactMeSection> {
           ),
           child: Stack(
             children: [
+              Positioned(
+                bottom: 0.h,
+                right: 0,
+                child: Image.asset(AppAssets.contactMeBg, scale: 2),
+              ),
               Padding(
                 padding: EdgeInsets.only(top: 50.h, left: 20.w),
                 child: Form(
@@ -123,83 +124,91 @@ class _MobileContactMeSectionState extends State<MobileContactMeSection> {
                         readSnapshot: _readSnapshot,
                       ),
                       SizedBox(height: 20.h),
-                      MouseRegion(
-                        onEnter: (event) => setState(() => isHovered = true),
-                        onExit: (event) => setState(() => isHovered = false),
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: isLoading
-                              ? null
-                              : () => _handleSubmit(context),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            key: const Key('submit_button'),
-                            width: 160.w,
-                            height: 35.h,
-                            decoration: BoxDecoration(
-                              color: isHovered
-                                  ? const Color(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                        children: [
+                          MouseRegion(
+                            onEnter: (event) =>
+                                setState(() => isHovered = true),
+                            onExit: (event) =>
+                                setState(() => isHovered = false),
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: isLoading
+                                  ? null
+                                  : () => _handleSubmit(context),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                key: const Key('submit_button'),
+                                width: 160.w,
+                                height: 35.h,
+                                decoration: BoxDecoration(
+                                  color: isHovered
+                                      ? const Color(
+                                          0xFFC3C3C3,
+                                        ).withValues(alpha: 0.42)
+                                      : Colors.transparent,
+                                  border: Border.all(
+                                    color: const Color(
                                       0xFFC3C3C3,
-                                    ).withValues(alpha: 0.42)
-                                  : Colors.transparent,
-                              border: Border.all(
-                                color: const Color(
-                                  0xFFC3C3C3,
-                                ).withValues(alpha: 0.42),
-                                width: 1.w,
+                                    ).withValues(alpha: 0.42),
+                                    width: 1.w,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                child: Center(
+                                  child: isLoading
+                                      ? SizedBox(
+                                          width: 18.w,
+                                          height: 18.w,
+                                          child:
+                                              const CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                        )
+                                      : Text(
+                                          'SUBMIT',
+                                          style: TextStyle(
+                                            fontSize: 20.sp,
+                                            fontFamily: 'Kosugi',
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                ),
                               ),
-                              borderRadius: BorderRadius.circular(10.r),
-                            ),
-                            child: Center(
-                              child: isLoading
-                                  ? SizedBox(
-                                      width: 18.w,
-                                      height: 18.w,
-                                      child: const CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : Text(
-                                      'SUBMIT',
-                                      style: TextStyle(
-                                        fontSize: 20.sp,
-                                        fontFamily: 'Kosugi',
-                                        color: Colors.white,
-                                      ),
-                                    ),
                             ),
                           ),
-                        ),
+                          Row(
+                            children: _socialLinks.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final item = entry.value;
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  left: index == 0 ? 0 : 10.w,
+                                ),
+                                child: _SocialCircleButton(
+                                  icon: item.icon,
+                                  color: Colors.white,
+                                  onTap: () =>
+                                      PortfolioLinkScope.of(context)(item.link),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
               ),
-              Positioned(
-                bottom: 0.h,
-                right: 0,
-                child: Image.asset(AppAssets.contactMeBg, scale: 2),
-              ),
-              Positioned(
-                bottom: 60.h,
-                right: 60.w,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _socialLinks.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final item = entry.value;
-                    return Padding(
-                      padding: EdgeInsets.only(left: index == 0 ? 0 : 18.w),
-                      child: _SocialCircleButton(
-                        icon: item.icon,
-                        color: Colors.white,
-                        onTap: () => PortfolioLinkScope.of(context)(item.link),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
+
+              // Positioned(
+              //   bottom: 0.h,
+              //   right: 0,
+              //   child: Image.asset(AppAssets.contactMeBg, scale: 2),
+              // ),
             ],
           ),
         );
@@ -246,31 +255,31 @@ class _SocialCircleButtonState extends State<_SocialCircleButton> {
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
         child: AnimatedScale(
-          scale: _isHovered ? 1.18 : 1.0,
+          scale: _isHovered ? 1.1 : 1.0,
           duration: const Duration(milliseconds: 280),
           curve: Curves.easeOutCubic,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 280),
-            width: 62.r,
-            height: 62.r,
+            width: 40.r,
+            height: 40.r,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.1),
               border: Border.all(
                 color: Colors.white.withValues(alpha: _isHovered ? 0.75 : 0.4),
-                width: _isHovered ? 2.2.w : 1.5.w,
+                width: _isHovered ? 1.8.w : 1.2.w,
               ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.35),
-                  blurRadius: _isHovered ? 18 : 12,
-                  spreadRadius: _isHovered ? 4 : 2,
+                  blurRadius: _isHovered ? 12 : 8,
+                  spreadRadius: _isHovered ? 2 : 1,
                 ),
                 if (_isHovered)
                   BoxShadow(
                     color: Colors.white.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    spreadRadius: -8,
+                    blurRadius: 14,
+                    spreadRadius: -6,
                   ),
               ],
             ),
@@ -278,7 +287,7 @@ class _SocialCircleButtonState extends State<_SocialCircleButton> {
               child: FaIcon(
                 widget.icon,
                 color: widget.color,
-                size: _isHovered ? 31.sp : 28.sp,
+                size: _isHovered ? 18.sp : 16.sp,
               ),
             ),
           ),

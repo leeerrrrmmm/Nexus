@@ -39,40 +39,51 @@ class _TabletThirdSectionState extends State<TabletThirdSection> {
   static const double _axisDecideThreshold = 6;
 
   final List<String> _projectTitles = const [
-    'Collabix',
-    'Sous vide',
-    'Slack',
     'E-CHAT',
     'Mind Map',
+    'Slack',
+    'Collabix',
+    'Sous vide',
   ];
 
   final List<String> _projectSubtitles = const [
-    'Workspaces',
-    'Reference',
-    'Team communication',
     'Communication app',
     'Task manager',
+    'Team communication',
+    'Workspaces',
+    'Reference',
   ];
 
   static const List<String> _dummyDescriptions = [
-    ''' 
-    An all-in-one collaboration platform that seamlessly bridges the gap between corporate messaging and the visual power of interactive boards. Forget toggling between multiple tabs: here, you can chat with your team to brainstorm ideas and instantly map them out on an infinite Miro-style canvas. The standout feature is its interactive task cards. Each card functions as a fully operational task element, allowing users to update its status in real time based on their current progress. This enables teams to not only visualize complex workflows but also track project momentum directly inside a single workspace.
-    ''',
-    '''
-    A smart culinary assistant tailored for chefs and precision cooking enthusiasts aiming for consistent, restaurant-quality results at home. The heart of the app is an intuitive time and temperature calculator for sous vide cooking. It completely eliminates guesswork, helping users select perfect parameters for meat, fish, or vegetables based on desired doneness. Beyond calculations, the app features a curated collection of recipes—including refined bar-style creations—with step-by-step guidance. An integrated equipment guide helps users understand essential tools and how to utilize them effectively in any kitchen environment.
-    ''',
-    '''
-    A full-featured corporate messenger designed to streamline team communication and eliminate the chaos of cluttered workspaces. The app offers an intuitive ecosystem featuring public and private channels for project-specific discussions, direct messages for quick one-on-one chats, and structured threads that keep conversations organized. Users can instantly share files of any format, customize profiles, flexibly adjust notification schedules, and use advanced search to navigate chat history. It is the perfect solution for distributed teams looking to stay synchronized, maintain momentum, and collaborate effortlessly within a unified digital environment.
-    ''',
     '''
     An innovative e-commerce messenger designed to transform standard online shopping into a dynamic, personalized conversation between brands and customers. This platform removes communication barriers, allowing users and sellers to exchange interactive product cards, discuss order details, apply promo codes, and complete secure one-click payments right inside the chat window. A built-in tracking system lets customers view their delivery status in real time without leaving the conversation, while smart bots instantly handle FAQs. It elevates customer service, making online shopping as seamless as texting a friend.
     ''',
     '''
     A next-generation task manager that redefines how you organize daily workflows and map out complex projects. The app allows users to organize tasks into standard default categories or create custom folders tailored to specific personal or professional needs. Its defining feature is a seamless integration with an interactive visualization board. Instead of managing dull, linear to-do lists, you can build connections between tasks, create interactive mind maps, group cards contextually, and view the entire architecture of your project at a glance. It is the ultimate tool for unlocking visual thinking and mastering productivity.
     ''',
+    '''
+    A full-featured corporate messenger designed to streamline team communication and eliminate the chaos of cluttered workspaces. The app offers an intuitive ecosystem featuring public and private channels for project-specific discussions, direct messages for quick one-on-one chats, and structured threads that keep conversations organized. Users can instantly share files of any format, customize profiles, flexibly adjust notification schedules, and use advanced search to navigate chat history. It is the perfect solution for distributed teams looking to stay synchronized, maintain momentum, and collaborate effortlessly within a unified digital environment.
+    ''',
+    ''' 
+    An all-in-one collaboration platform that seamlessly bridges the gap between corporate messaging and the visual power of interactive boards. Forget toggling between multiple tabs: here, you can chat with your team to brainstorm ideas and instantly map them out on an infinite Miro-style canvas. The standout feature is its interactive task cards. Each card functions as a fully operational task element, allowing users to update its status in real time based on their current progress. This enables teams to not only visualize complex workflows but also track project momentum directly inside a single workspace.
+    ''',
+    '''
+    A smart culinary assistant tailored for chefs and precision cooking enthusiasts aiming for consistent, restaurant-quality results at home. The heart of the app is an intuitive time and temperature calculator for sous vide cooking. It completely eliminates guesswork, helping users select perfect parameters for meat, fish, or vegetables based on desired doneness. Beyond calculations, the app features a curated collection of recipes—including refined bar-style creations—with step-by-step guidance. An integrated equipment guide helps users understand essential tools and how to utilize them effectively in any kitchen environment.
+    ''',
   ];
 
   static final Map<String, List<Color>> _projectColors = {
+    'E-CHAT': [Color(0xFFFFFFFF), Color(0xFF8095C3), Color(0xFF8095C3)],
+    'Mind Map': [
+      Color(0xFFFFFFFF),
+      Color.fromARGB(201, 226, 108, 108),
+      Color(0xFFE45756),
+    ],
+    'Slack': [
+      Color(0xFFFFFFFF),
+      Color.fromARGB(255, 66, 65, 65),
+      Color.fromARGB(175, 104, 101, 101),
+    ],
     'Collabix': [
       Color(0xFFFFFFFF),
       Color.fromARGB(152, 125, 185, 0),
@@ -82,17 +93,6 @@ class _TabletThirdSectionState extends State<TabletThirdSection> {
       Color(0xFFFFFFFF),
       Color.fromARGB(184, 128, 91, 51),
       Color.fromARGB(230, 128, 91, 51),
-    ],
-    'Slack': [
-      Color(0xFFFFFFFF),
-      Color.fromARGB(255, 66, 65, 65),
-      Color.fromARGB(175, 104, 101, 101),
-    ],
-    'E-CHAT': [Color(0xFFFFFFFF), Color(0xFF8095C3), Color(0xFF8095C3)],
-    'Mind Map': [
-      Color(0xFFFFFFFF),
-      Color.fromARGB(201, 226, 108, 108),
-      Color(0xFFE45756),
     ],
   };
 
