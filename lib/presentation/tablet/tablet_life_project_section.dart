@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/presentation/widgets/portfolio_text_link_button.dart';
@@ -74,6 +75,7 @@ class _TabletLiveProjectSectionState extends State<TabletLiveProjectSection>
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
+    final compactLayout = MediaQuery.sizeOf(context).height < 760;
 
     return Container(
       height: 0.85.sh, // чуть выше чем на мобиле
@@ -103,13 +105,16 @@ class _TabletLiveProjectSectionState extends State<TabletLiveProjectSection>
           Positioned.fill(
             child: SafeArea(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 40.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: compactLayout ? 24.w : 40.w,
+                  vertical: compactLayout ? 16.h : 40.h,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Верхний блок: заголовок + линия + лого
                     SizedBox(
-                      height: 420.h,
+                      height: compactLayout ? 220.h : 420.h,
                       child: Stack(
                         clipBehavior: Clip.none,
                         children: [
@@ -134,8 +139,8 @@ class _TabletLiveProjectSectionState extends State<TabletLiveProjectSection>
 
                           // Круглое лого с свечением
                           Positioned(
-                            right: 40.w,
-                            top: 80.h,
+                            right: compactLayout ? 20.w : 40.w,
+                            top: compactLayout ? 32.h : 80.h,
                             child: AnimatedSwitcher(
                               duration: const Duration(milliseconds: 600),
                               switchInCurve: Curves.easeOutCubic,
@@ -154,8 +159,8 @@ class _TabletLiveProjectSectionState extends State<TabletLiveProjectSection>
                               },
                               child: Container(
                                 key: ValueKey<int>(_currentIndex),
-                                width: 260.w,
-                                height: 260.w,
+                                width: compactLayout ? 190.w : 260.w,
+                                height: compactLayout ? 190.w : 260.w,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   boxShadow: [
@@ -173,6 +178,11 @@ class _TabletLiveProjectSectionState extends State<TabletLiveProjectSection>
                                     _projectImages[_currentIndex %
                                         _projectImages.length],
                                     fit: BoxFit.cover,
+                                    cacheWidth: AssetImageCache.cacheWidth(
+                                      context,
+                                      _projectImages[_currentIndex %
+                                          _projectImages.length],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -182,7 +192,7 @@ class _TabletLiveProjectSectionState extends State<TabletLiveProjectSection>
                       ),
                     ),
 
-                    SizedBox(height: 50.h),
+                    SizedBox(height: compactLayout ? 16.h : 50.h),
 
                     // Описание
                     Expanded(

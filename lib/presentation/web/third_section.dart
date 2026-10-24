@@ -1,16 +1,18 @@
 import 'dart:async';
-import 'dart:ui' show lerpDouble, ImageFilter;
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:portfolio/core/const/app_assets/app_assets.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/core/links/portfolio_link_scope.dart';
 import 'package:portfolio/presentation/components/gradient_text_title.dart';
 import 'package:portfolio/presentation/widgets/glass_container_widget.dart';
+import 'package:portfolio/presentation/widgets/project_details_dialog.dart';
 
 class ThirdSection extends StatefulWidget {
   const ThirdSection({super.key});
@@ -245,7 +247,7 @@ class _ThirdSectionState extends State<ThirdSection> {
       height: 1.1.sh,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(AppAssets.projectBg),
+          image: AssetImageCache.provider(context, AppAssets.projectBg),
           fit: BoxFit.cover,
         ),
         border: Border(
@@ -329,7 +331,7 @@ class _ThirdSectionState extends State<ThirdSection> {
   }
 }
 
-// === Карточка проекта: клик раскрывает полный текст ===
+// === Карточка проекта ===
 class _ProjectCard extends StatefulWidget {
   final String title;
   final String subtitle;
@@ -349,41 +351,20 @@ class _ProjectCard extends StatefulWidget {
   State<_ProjectCard> createState() => _ProjectCardState();
 }
 
-class _ProjectCardState extends State<_ProjectCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _expandController;
-  late final Animation<double> _expandAnimation;
-
-  bool _isExpanded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _expandController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 420),
-      reverseDuration: const Duration(milliseconds: 320),
+class _ProjectCardState extends State<_ProjectCard> {
+  void _openDetails() {
+    final imagePath = AppAssets().projectImages[widget.index];
+    showProjectDetailsDialog(
+      context: context,
+      title: widget.title,
+      subtitle: widget.subtitle,
+      description: widget.description,
+      imagePath: imagePath,
+      colors: widget.projectColors[widget.title] ?? const [],
+      onOpenProject: () => PortfolioLinkScope.of(context)(
+        PortfolioLinkX.fromProjectTitle(widget.title),
+      ),
     );
-    _expandAnimation = CurvedAnimation(
-      parent: _expandController,
-      curve: Curves.easeOutCubic,
-      reverseCurve: Curves.easeInCubic,
-    );
-  }
-
-  @override
-  void dispose() {
-    _expandController.dispose();
-    super.dispose();
-  }
-
-  void _toggleExpanded() {
-    setState(() => _isExpanded = !_isExpanded);
-    if (_isExpanded) {
-      _expandController.forward();
-    } else {
-      _expandController.reverse();
-    }
   }
 
   @override
@@ -396,281 +377,261 @@ class _ProjectCardState extends State<_ProjectCard>
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: _toggleExpanded,
-          child: AnimatedBuilder(
-            animation: _expandAnimation,
-            builder: (context, child) {
-              final t = _expandAnimation.value;
-              // Карточка «выезжает» вперёд — layout и фото не трогаем.
-              return Transform.scale(
-                scale: lerpDouble(0.9, 1, t)!,
-                alignment: Alignment.center,
-                filterQuality: FilterQuality.high,
-                child: child,
-              );
-            },
-            child: GlassContainerWidget(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                stops: const [0.0, 0.5, 1.0],
-                colors: [
-                  Colors.white.withValues(alpha: 0.1),
-                  const Color(0xFF7C62FE).withValues(alpha: 0.1),
-                  const Color(0xFF7C62FE).withValues(alpha: 0.1),
-                ],
-              ),
-              height: 580,
-              width: 480,
-              padding: EdgeInsets.all(2.r),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _CustomMacElement(
-                        width: 70.w,
-                        height: 31.h,
-                        borderRadius: BorderRadius.only(
-                          bottomRight: Radius.circular(30.r),
-                          topLeft: Radius.circular(100.r),
+          onTap: _openDetails,
+          child: GlassContainerWidget(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              stops: const [0.0, 0.5, 1.0],
+              colors: [
+                Colors.white.withValues(alpha: 0.1),
+                const Color(0xFF7C62FE).withValues(alpha: 0.1),
+                const Color(0xFF7C62FE).withValues(alpha: 0.1),
+              ],
+            ),
+            height: 580,
+            width: 480,
+            padding: EdgeInsets.all(2.r),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _CustomMacElement(
+                      width: 70.w,
+                      height: 31.h,
+                      borderRadius: BorderRadius.only(
+                        bottomRight: Radius.circular(30.r),
+                        topLeft: Radius.circular(100.r),
+                      ),
+                      boxBorder: Border(
+                        right: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          width: 1.w,
                         ),
-                        boxBorder: Border(
-                          right: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            width: 1.w,
-                          ),
-                          bottom: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            width: 1.w,
-                          ),
+                        bottom: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          width: 1.w,
                         ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          CircleAvatar(
+                            radius: 4.r,
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                          CircleAvatar(
+                            radius: 4.r,
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                          CircleAvatar(
+                            radius: 4.r,
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _CustomMacElement(
+                      width: 321.w,
+                      height: 31.h,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(140.r),
+                        bottomLeft: Radius.circular(30.r),
+                      ),
+                      boxBorder: Border(
+                        right: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          width: 1.w,
+                        ),
+                        bottom: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          width: 1.w,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 14.w),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            CircleAvatar(
-                              radius: 4.r,
-                              backgroundColor: Colors.white.withValues(
-                                alpha: 0.2,
+                            Text(
+                              'VIEW DETAILS',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.5),
+                                fontSize: 9.sp,
+                                letterSpacing: 1.2,
                               ),
                             ),
-                            CircleAvatar(
-                              radius: 4.r,
-                              backgroundColor: Colors.white.withValues(
-                                alpha: 0.2,
-                              ),
-                            ),
-                            CircleAvatar(
-                              radius: 4.r,
-                              backgroundColor: Colors.white.withValues(
-                                alpha: 0.2,
-                              ),
+                            SizedBox(width: 6.w),
+                            Icon(
+                              Icons.north_east_rounded,
+                              color: Colors.white.withValues(alpha: 0.5),
+                              size: 12.sp,
                             ),
                           ],
                         ),
                       ),
-                      _CustomMacElement(
-                        width: 321.w,
-                        height: 31.h,
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(140.r),
-                          bottomLeft: Radius.circular(30.r),
+                    ),
+                  ],
+                ),
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                      top: 6.9,
+                      left: 10,
+                      right: 10,
+                    ),
+                    height: 215.36.h,
+                    width: 481.w,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16.r),
+                      gradient: LinearGradient(
+                        colors: widget.projectColors[widget.title] ?? [],
+                        stops: const [0.0, 0.5, 1.0],
+                      ),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16.r),
+                      child: Image.asset(
+                        AppAssets().projectImages[widget.index],
+                        fit: BoxFit.fill,
+                        cacheWidth: AssetImageCache.cacheWidth(
+                          context,
+                          AppAssets().projectImages[widget.index],
                         ),
-                        boxBorder: Border(
-                          right: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            width: 1.w,
+                        filterQuality: FilterQuality.high,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24.h),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6.9, left: 10, right: 10),
+                  child: GradientTextTitle(
+                    alignment: Alignment.centerLeft,
+                    text: widget.title,
+                    fontSize: 24.sp,
+                    fontFamily: 'Kokh',
+                    stops: const [0.1, 0.9, 1.0],
+                    colors: widget.projectColors[widget.title],
+                    topAlignment: Alignment.centerLeft,
+                    bottomAlignment: Alignment.centerRight,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Padding(
+                  padding: const EdgeInsets.only(top: 6.9, left: 10, right: 10),
+                  child: GradientTextTitle(
+                    alignment: Alignment.centerLeft,
+                    text: widget.subtitle,
+                    fontSize: 24.sp,
+                    fontFamily: 'Kokh',
+                    stops: const [0.1, 0.8, 1.0],
+                    colors: widget.projectColors[widget.title],
+                    topAlignment: Alignment.centerRight,
+                    bottomAlignment: Alignment.centerLeft,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 6.9,
+                      left: 10,
+                      right: 10,
+                    ),
+                    child: Text(
+                      trimmedDescription,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontFamily: 'Kokh',
+                        color: Colors.white.withValues(alpha: 0.72),
+                        height: 1.5,
+                      ),
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 58.h,
+                  width: 80.w,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: 14.w,
+                        bottom: 4.h,
+                        child: Container(
+                          width: 40.w,
+                          height: 40.h,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1F1F22),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.4),
+                              width: 1.w,
+                            ),
                           ),
-                          bottom: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            width: 1.w,
+                          child: Center(
+                            child: FaIcon(
+                              FontAwesomeIcons.github,
+                              color: Colors.grey,
+                              size: 28.sp,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 18.h,
+                        left: 40.w,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20.r),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(
+                              sigmaX: 10.0,
+                              sigmaY: 10.0,
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                PortfolioLinkScope.of(context)(
+                                  PortfolioLinkX.fromProjectTitle(widget.title),
+                                );
+                              },
+                              child: Container(
+                                width: 40.w,
+                                height: 40.h,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.3),
+                                    width: 1.w,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward,
+                                  color: const Color(0xFF8C73FF),
+                                  size: 18.sp,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                  Center(
-                    child: Container(
-                      margin: const EdgeInsets.only(
-                        top: 6.9,
-                        left: 10,
-                        right: 10,
-                      ),
-                      height: 215.36.h,
-                      width: 481.w,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16.r),
-                        gradient: LinearGradient(
-                          colors: widget.projectColors[widget.title] ?? [],
-                          stops: const [0.0, 0.5, 1.0],
-                        ),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16.r),
-                        child: Image.asset(
-                          AppAssets().projectImages[widget.index],
-                          fit: BoxFit.fill,
-                          filterQuality: FilterQuality.high,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 24.h),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 6.9,
-                      left: 10,
-                      right: 10,
-                    ),
-                    child: GradientTextTitle(
-                      alignment: Alignment.centerLeft,
-                      text: widget.title,
-                      fontSize: 24.sp,
-                      fontFamily: 'Kokh',
-                      stops: const [0.1, 0.9, 1.0],
-                      colors: widget.projectColors[widget.title],
-                      topAlignment: Alignment.centerLeft,
-                      bottomAlignment: Alignment.centerRight,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 6.9,
-                      left: 10,
-                      right: 10,
-                    ),
-                    child: GradientTextTitle(
-                      alignment: Alignment.centerLeft,
-                      text: widget.subtitle,
-                      fontSize: 24.sp,
-                      fontFamily: 'Kokh',
-                      stops: const [0.1, 0.8, 1.0],
-                      colors: widget.projectColors[widget.title],
-                      topAlignment: Alignment.centerRight,
-                      bottomAlignment: Alignment.centerLeft,
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 6.9,
-                        left: 10,
-                        right: 10,
-                      ),
-                      child: AnimatedBuilder(
-                        animation: _expandAnimation,
-                        builder: (context, _) {
-                          final t = _expandAnimation.value;
-                          final showFullText = t > 0.5;
-
-                          return AnimatedOpacity(
-                            duration: const Duration(milliseconds: 220),
-                            opacity: lerpDouble(0.85, 1.0, t)!,
-                            child: SingleChildScrollView(
-                              physics: showFullText
-                                  ? const BouncingScrollPhysics()
-                                  : const NeverScrollableScrollPhysics(),
-                              child: Text(
-                                trimmedDescription,
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontFamily: 'Kokh',
-                                  color: Colors.white.withValues(
-                                    alpha: lerpDouble(0.6, 0.88, t)!,
-                                  ),
-                                  height: 1.5,
-                                ),
-                                maxLines: showFullText ? null : 6,
-                                overflow: showFullText
-                                    ? TextOverflow.visible
-                                    : TextOverflow.ellipsis,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 58.h,
-                    width: 80.w,
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          left: 14.w,
-                          bottom: 4.h,
-                          child: Container(
-                            width: 40.w,
-                            height: 40.h,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1F1F22),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.4),
-                                width: 1.w,
-                              ),
-                            ),
-                            child: Center(
-                              child: FaIcon(
-                                FontAwesomeIcons.github,
-                                color: Colors.grey,
-                                size: 28.sp,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 18.h,
-                          left: 40.w,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20.r),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(
-                                sigmaX: 10.0,
-                                sigmaY: 10.0,
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  PortfolioLinkScope.of(context)(
-                                    PortfolioLinkX.fromProjectTitle(
-                                      widget.title,
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 40.w,
-                                  height: 40.h,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.15),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.3,
-                                      ),
-                                      width: 1.w,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.arrow_forward,
-                                    color: const Color(0xFF8C73FF),
-                                    size: 18.sp,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'dart:ui' show lerpDouble;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:portfolio/core/const/app_assets/app_assets.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/core/links/portfolio_link_scope.dart';
 import 'package:portfolio/presentation/components/gradient_text_title.dart';
 import 'package:portfolio/presentation/widgets/glass_container_widget.dart';
+import 'package:portfolio/presentation/widgets/project_details_dialog.dart';
 
 class MobileThirdSection extends StatefulWidget {
   const MobileThirdSection({super.key});
@@ -24,7 +24,7 @@ class _MobileThirdSectionState extends State<MobileThirdSection> {
   Timer? _autoPlayTimer;
 
   static const int _realItemCount = 5;
-  static const int _initialPage = 10000;
+  static const int _initialPage = 20;
 
   final List<String> _projectTitles = const [
     'E-CHAT',
@@ -124,7 +124,7 @@ class _MobileThirdSectionState extends State<MobileThirdSection> {
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage(AppAssets.projectBg),
+          image: AssetImageCache.provider(context, AppAssets.projectBg),
           fit: BoxFit.cover,
         ),
         border: Border(
@@ -193,34 +193,20 @@ class _ProjectCard extends StatefulWidget {
   State<_ProjectCard> createState() => _ProjectCardState();
 }
 
-class _ProjectCardState extends State<_ProjectCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _expandController;
-  bool _isExpanded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _expandController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 420),
-      reverseDuration: const Duration(milliseconds: 320),
+class _ProjectCardState extends State<_ProjectCard> {
+  void _openDetails() {
+    final imagePath = AppAssets().projectImages[widget.index];
+    showProjectDetailsDialog(
+      context: context,
+      title: widget.title,
+      subtitle: widget.subtitle,
+      description: widget.description,
+      imagePath: imagePath,
+      colors: widget.projectColors[widget.title] ?? const [],
+      onOpenProject: () => PortfolioLinkScope.of(context)(
+        PortfolioLinkX.fromProjectTitle(widget.title),
+      ),
     );
-  }
-
-  @override
-  void dispose() {
-    _expandController.dispose();
-    super.dispose();
-  }
-
-  void _toggleExpanded() {
-    setState(() => _isExpanded = !_isExpanded);
-    if (_isExpanded) {
-      _expandController.forward();
-    } else {
-      _expandController.reverse();
-    }
   }
 
   @override
@@ -228,255 +214,239 @@ class _ProjectCardState extends State<_ProjectCard>
     final trimmedDescription = widget.description.trim();
 
     return GestureDetector(
-      onTap: _toggleExpanded,
-      child: AnimatedBuilder(
-        animation: _expandController,
-        builder: (context, child) {
-          final t = _expandController.value;
-          return Transform.scale(
-            scale: lerpDouble(0.95, 1.0, t)!,
-            child: child,
-          );
-        },
-        child: GlassContainerWidget(
-          height: widget.cardHeight,
-          width: 300,
-          padding: EdgeInsets.all(2.r),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: const [0.0, 0.5, 1.0],
-            colors: [
-              Colors.white.withValues(alpha: 0.1),
-              const Color(0xFF7C62FE).withValues(alpha: 0.1),
-              const Color(0xFF7C62FE).withValues(alpha: 0.1),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Mac-style top bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _CustomMacElement(
-                    width: 42.w,
-                    height: 16.h,
-                    borderRadius: BorderRadius.only(
-                      bottomRight: Radius.circular(30.r),
-                      topLeft: Radius.circular(100.r),
+      onTap: _openDetails,
+      child: GlassContainerWidget(
+        height: widget.cardHeight,
+        width: 300,
+        padding: EdgeInsets.all(2.r),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          stops: const [0.0, 0.5, 1.0],
+          colors: [
+            Colors.white.withValues(alpha: 0.1),
+            const Color(0xFF7C62FE).withValues(alpha: 0.1),
+            const Color(0xFF7C62FE).withValues(alpha: 0.1),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Mac-style top bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _CustomMacElement(
+                  width: 42.w,
+                  height: 16.h,
+                  borderRadius: BorderRadius.only(
+                    bottomRight: Radius.circular(30.r),
+                    topLeft: Radius.circular(100.r),
+                  ),
+                  boxBorder: Border(
+                    right: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      width: 1.w,
                     ),
-                    boxBorder: Border(
-                      right: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        width: 1.w,
-                      ),
-                      bottom: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        width: 1.w,
+                    bottom: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      width: 1.w,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(
+                      3,
+                      (_) => CircleAvatar(
+                        radius: 3.r,
+                        backgroundColor: Colors.white.withValues(alpha: 0.2),
                       ),
                     ),
+                  ),
+                ),
+                _CustomMacElement(
+                  width: 196.w,
+                  height: 16.h,
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(140.r),
+                    bottomLeft: Radius.circular(30.r),
+                  ),
+                  boxBorder: Border(
+                    right: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      width: 1.w,
+                    ),
+                    bottom: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      width: 1.w,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 8.w),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: List.generate(
-                        3,
-                        (_) => CircleAvatar(
-                          radius: 3.r,
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          'DETAILS',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5),
+                            fontSize: 8.sp,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        SizedBox(width: 4.w),
+                        Icon(
+                          Icons.north_east_rounded,
+                          color: Colors.white.withValues(alpha: 0.5),
+                          size: 10.sp,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Project Image
+            Center(
+              child: Builder(
+                builder: (context) {
+                  final path = AppAssets().projectImages[widget.index];
+                  return Container(
+                    margin: EdgeInsets.only(top: 6.h, left: 10.w, right: 10.w),
+                    height: 160.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14.r),
+                      gradient: LinearGradient(
+                        colors: widget.projectColors[widget.title] ?? [],
+                      ),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14.r),
+                      child: Image.asset(
+                        path,
+                        fit: BoxFit.cover,
+                        cacheWidth: AssetImageCache.cacheWidth(context, path),
+                        filterQuality: FilterQuality.medium,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            SizedBox(height: 12.h),
+
+            // Title
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              child: GradientTextTitle(
+                alignment: Alignment.centerLeft,
+                text: widget.title,
+                fontSize: 20.sp,
+                fontFamily: 'Kokh',
+                stops: const [0.1, 0.9, 1.0],
+                colors: widget.projectColors[widget.title],
+              ),
+            ),
+
+            // Subtitle
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              child: GradientTextTitle(
+                alignment: Alignment.centerLeft,
+                text: widget.subtitle,
+                fontSize: 18.sp,
+                fontFamily: 'Kokh',
+                stops: const [0.1, 0.8, 1.0],
+                colors: widget.projectColors[widget.title],
+              ),
+            ),
+
+            SizedBox(height: 8.h),
+
+            // Description
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Text(
+                  trimmedDescription,
+                  style: TextStyle(
+                    fontSize: 11.5.sp,
+                    fontFamily: 'Kokh',
+                    color: Colors.white.withValues(alpha: 0.72),
+                    height: 1.4,
+                  ),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+
+            // Bottom buttons
+            SizedBox(
+              height: 48.h,
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 12.w,
+                    bottom: 4.h,
+                    child: Container(
+                      width: 33.w,
+                      height: 33.w,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1F1F22),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.4),
+                          width: 1.w,
+                        ),
+                      ),
+                      child: Center(
+                        child: FaIcon(
+                          FontAwesomeIcons.github,
+                          color: Colors.grey,
+                          size: 22.sp,
                         ),
                       ),
                     ),
                   ),
-                  _CustomMacElement(
-                    width: 196.w,
-                    height: 16.h,
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(140.r),
-                      bottomLeft: Radius.circular(30.r),
-                    ),
-                    boxBorder: Border(
-                      right: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        width: 1.w,
-                      ),
-                      bottom: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        width: 1.w,
+                  Positioned(
+                    bottom: 14.h,
+                    left: 30.w,
+                    child: GestureDetector(
+                      onTap: () {
+                        PortfolioLinkScope.of(context)(
+                          PortfolioLinkX.fromProjectTitle(widget.title),
+                        );
+                      },
+                      child: Container(
+                        width: 33.w,
+                        height: 33.w,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.3),
+                            width: 1.w,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.arrow_forward,
+                          color: const Color(0xFF8C73FF),
+                          size: 18.sp,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-
-              // Project Image
-              Center(
-                child: Builder(
-                  builder: (context) {
-                    final dpr = MediaQuery.devicePixelRatioOf(context);
-                    final cacheW = (280.w * dpr).round();
-                    final cacheH = (160.h * dpr).round();
-                    return Container(
-                      margin: EdgeInsets.only(
-                        top: 6.h,
-                        left: 10.w,
-                        right: 10.w,
-                      ),
-                      height: 160.h,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14.r),
-                        gradient: LinearGradient(
-                          colors: widget.projectColors[widget.title] ?? [],
-                        ),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(14.r),
-                        child: Image.asset(
-                          AppAssets().projectImages[widget.index],
-                          fit: BoxFit.cover,
-                          cacheWidth: cacheW,
-                          cacheHeight: cacheH,
-                          filterQuality: FilterQuality.medium,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              SizedBox(height: 12.h),
-
-              // Title
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: GradientTextTitle(
-                  alignment: Alignment.centerLeft,
-                  text: widget.title,
-                  fontSize: 20.sp,
-                  fontFamily: 'Kokh',
-                  stops: const [0.1, 0.9, 1.0],
-                  colors: widget.projectColors[widget.title],
-                ),
-              ),
-
-              // Subtitle
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: GradientTextTitle(
-                  alignment: Alignment.centerLeft,
-                  text: widget.subtitle,
-                  fontSize: 18.sp,
-                  fontFamily: 'Kokh',
-                  stops: const [0.1, 0.8, 1.0],
-                  colors: widget.projectColors[widget.title],
-                ),
-              ),
-
-              SizedBox(height: 8.h),
-
-              // Description
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: AnimatedBuilder(
-                    animation: _expandController,
-                    builder: (context, _) {
-                      final t = _expandController.value;
-                      final showFull = t > 0.5;
-
-                      return SingleChildScrollView(
-                        physics: showFull
-                            ? const BouncingScrollPhysics()
-                            : const NeverScrollableScrollPhysics(),
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 200),
-                          opacity: lerpDouble(0.75, 1.0, t)!,
-                          child: Text(
-                            trimmedDescription,
-                            style: TextStyle(
-                              fontSize: 11.5.sp,
-                              fontFamily: 'Kokh',
-                              color: Colors.white.withValues(
-                                alpha: lerpDouble(0.65, 0.9, t)!,
-                              ),
-                              height: 1.4,
-                            ),
-                            maxLines: showFull ? null : 4,
-                            overflow: showFull
-                                ? TextOverflow.visible
-                                : TextOverflow.ellipsis,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              // Bottom buttons
-              SizedBox(
-                height: 48.h,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 12.w,
-                      bottom: 4.h,
-                      child: Container(
-                        width: 33.w,
-                        height: 33.w,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1F1F22),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.4),
-                            width: 1.w,
-                          ),
-                        ),
-                        child: Center(
-                          child: FaIcon(
-                            FontAwesomeIcons.github,
-                            color: Colors.grey,
-                            size: 22.sp,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 14.h,
-                      left: 30.w,
-                      child: GestureDetector(
-                        onTap: () {
-                          PortfolioLinkScope.of(context)(
-                            PortfolioLinkX.fromProjectTitle(widget.title),
-                          );
-                        },
-                        child: Container(
-                          width: 33.w,
-                          height: 33.w,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.45),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.3),
-                              width: 1.w,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.arrow_forward,
-                            color: const Color(0xFF8C73FF),
-                            size: 18.sp,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

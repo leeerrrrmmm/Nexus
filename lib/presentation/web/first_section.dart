@@ -63,28 +63,30 @@ class _FirstSectionContentState extends State<FirstSectionContent>
         children: [
           if (_particles.isNotEmpty)
             Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return Stack(
-                    children: _particles.map((particle) {
-                      final offset = particle.getOffset(
-                        _controller.value * 2 * math.pi,
-                        screenSize,
-                      );
+              child: RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Stack(
+                      children: _particles.map((particle) {
+                        final offset = particle.getOffset(
+                          _controller.value * 2 * math.pi,
+                          screenSize,
+                        );
 
-                      return Positioned(
-                        left: offset.dx - particle.size / 2,
-                        top: offset.dy - particle.size / 2,
-                        child: _buildGlowOrb(
-                          const Color(0xff4F8BFF),
-                          particle.size,
-                          particle.opacity,
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
+                        return Positioned(
+                          left: offset.dx - particle.size / 2,
+                          top: offset.dy - particle.size / 2,
+                          child: _buildGlowOrb(
+                            const Color(0xff4F8BFF),
+                            particle.size,
+                            particle.opacity,
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
               ),
             ),
           Center(
@@ -96,9 +98,9 @@ class _FirstSectionContentState extends State<FirstSectionContent>
                   builder: (context) {
                     final band = Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xff2C2C2C).withValues(
-                          alpha: kIsWeb ? 0.82 : 0.6,
-                        ),
+                        color: const Color(
+                          0xff2C2C2C,
+                        ).withValues(alpha: kIsWeb ? 0.82 : 0.6),
                         border: Border(
                           top: BorderSide(
                             color: Colors.white.withValues(alpha: 0.15),
@@ -112,11 +114,14 @@ class _FirstSectionContentState extends State<FirstSectionContent>
                       ),
                       child: Center(
                         child: Padding(
-                          padding: EdgeInsets.only(top: 20.w),
-                          child: GlassText(
-                            text: AppText.portfolioText,
-                            fontSize: 248.sp,
-                            letterSpacing: -19.0,
+                          padding: EdgeInsets.fromLTRB(24.w, 20.w, 24.w, 0),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: GlassText(
+                              text: AppText.portfolioText,
+                              fontSize: 200.sp.clamp(160.0, 220.0),
+                              letterSpacing: -15.0,
+                            ),
                           ),
                         ),
                       ),

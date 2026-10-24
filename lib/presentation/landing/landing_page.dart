@@ -4,7 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart' hide DeviceType;
 import 'package:portfolio/core/const/app_assets/app_assets.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/core/links/portfolio_link_scope.dart';
 import 'package:portfolio/core/responsive/responsive.dart';
@@ -12,6 +14,7 @@ import 'package:portfolio/features/contact/data/remote/contact_me_remote_datasou
 import 'package:portfolio/features/contact/data/repo_impl/contact_me_repo_impl.dart';
 import 'package:portfolio/features/contact/domain/useCase/contact_me_usecase.dart';
 import 'package:portfolio/features/state/cubit/contact_me_cubit.dart';
+import 'package:portfolio/presentation/landing/lazy_mount.dart';
 import 'package:portfolio/presentation/mobile/drawer/mobile_drawer.dart';
 import 'package:portfolio/presentation/mobile/mobile_app_bar.dart';
 import 'package:portfolio/presentation/mobile/mobile_contact_me_section.dart';
@@ -63,11 +66,24 @@ class _LandingPageState extends State<LandingPage> {
   final GlobalKey _libraryKey = GlobalKey();
   final GlobalKey _contactKey = GlobalKey();
 
+  /// Slots below the hero. Header is always built; these start as height stubs.
+  static const _aboutSlot = 0;
+  static const _projectsSlot = 1;
+  static const _ticker1Slot = 2;
+  static const _liveSlot = 3;
+  static const _ticker2Slot = 4;
+  static const _librarySlot = 5;
+  static const _contactSlot = 6;
+  static const _slotCount = 7;
+
+  final Set<int> _readySlots = <int>{};
+
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _mountNext());
   }
 
   @override
@@ -133,28 +149,95 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
+  bool _isReady(int slot) => _readySlots.contains(slot);
+
+  void _revealSlot(int slot) {
+    if (!mounted || _readySlots.contains(slot)) return;
+    setState(() => _readySlots.add(slot));
+  }
+
+  void _mountNext() {
+    if (!mounted) return;
+    for (var slot = 0; slot < _slotCount; slot++) {
+      if (!_readySlots.contains(slot)) {
+        _revealSlot(slot);
+        WidgetsBinding.instance.addPostFrameCallback((_) => _mountNext());
+        return;
+      }
+    }
+  }
+
+  static int _slotForNavIndex(int index) => switch (index) {
+    1 => _aboutSlot,
+    2 => _projectsSlot,
+    3 => _liveSlot,
+    4 => _librarySlot,
+    5 => _contactSlot,
+    _ => -1,
+  };
+
+  double _placeholderHeight(int slot, DeviceType deviceType, bool isMobile) {
+    return switch (slot) {
+      _aboutSlot => switch (deviceType) {
+        DeviceType.mobile => 917.h,
+        DeviceType.tablet => 1536.h,
+        DeviceType.desktop => 1251.h,
+      },
+      _projectsSlot => switch (deviceType) {
+        DeviceType.mobile => 0.88.sh,
+        DeviceType.tablet => 0.95.sh,
+        DeviceType.desktop => 1.1.sh,
+      },
+      _ticker1Slot || _ticker2Slot => isMobile ? 40.h : 92.h,
+      _liveSlot => switch (deviceType) {
+        DeviceType.mobile => 0.7.sh,
+        DeviceType.tablet => 0.85.sh,
+        DeviceType.desktop => 1.sh,
+      },
+      _librarySlot => switch (deviceType) {
+        DeviceType.mobile => 0.8.sh,
+        DeviceType.tablet => 0.9.sh,
+        DeviceType.desktop => 1.sh,
+      },
+      _contactSlot => switch (deviceType) {
+        DeviceType.mobile => 0.75.sh,
+        DeviceType.tablet => 0.82.sh,
+        DeviceType.desktop => 1.sh,
+      },
+      _ => 0,
+    };
+  }
+
   // Маппинг клика из AppBar/Drawer
   void _onNavTap(int index) {
-    switch (index) {
-      case 0:
-        _scrollToSection(_headerKey, index);
-        break;
-      case 1:
-        _scrollToSection(_aboutKey, index);
-        break;
-      case 2:
-        _scrollToSection(_projectKey, index);
-        break;
-      case 3:
-        _scrollToSection(_liveProjectsKey, index);
-        break;
-      case 4:
-        _scrollToSection(_libraryKey, index);
-        break;
-      case 5:
-        _scrollToSection(_contactKey, index);
-        break;
+    final slot = _slotForNavIndex(index);
+    final needsReveal = slot >= 0 && !_isReady(slot);
+    if (slot >= 0) _revealSlot(slot);
+
+    void scroll() {
+      switch (index) {
+        case 0:
+          _scrollToSection(_headerKey, index);
+        case 1:
+          _scrollToSection(_aboutKey, index);
+        case 2:
+          _scrollToSection(_projectKey, index);
+        case 3:
+          _scrollToSection(_liveProjectsKey, index);
+        case 4:
+          _scrollToSection(_libraryKey, index);
+        case 5:
+          _scrollToSection(_contactKey, index);
+      }
     }
+
+    if (needsReveal) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) scroll();
+      });
+      return;
+    }
+    scroll();
   }
 
   /// Single place for all external / private destinations.
@@ -235,14 +318,14 @@ class _LandingPageState extends State<LandingPage> {
                         child: IgnorePointer(
                           child: Builder(
                             builder: (context) {
-                              final dpr = MediaQuery.devicePixelRatioOf(
-                                context,
-                              );
                               final image = Image.asset(
                                 AppAssets.backgroundPatterImage,
                                 fit: BoxFit.cover,
                                 alignment: Alignment.topCenter,
-                                cacheWidth: (screenWidth * dpr).round(),
+                                cacheWidth: AssetImageCache.cacheWidth(
+                                  context,
+                                  AppAssets.backgroundPatterImage,
+                                ),
                                 color: Colors.black.withValues(alpha: 0.6),
                                 colorBlendMode: BlendMode.darken,
                                 filterQuality: FilterQuality.low,
@@ -267,59 +350,110 @@ class _LandingPageState extends State<LandingPage> {
                     ],
                   ),
 
-                  switch (deviceType) {
-                    DeviceType.mobile => MobileSecondSection(key: _aboutKey),
-                    DeviceType.tablet => TabletSecondSection(key: _aboutKey),
-                    DeviceType.desktop => SecondSection(key: _aboutKey),
-                  },
-
-                  switch (deviceType) {
-                    DeviceType.mobile => MobileThirdSection(key: _projectKey),
-                    DeviceType.tablet => TabletThirdSection(key: _projectKey),
-                    DeviceType.desktop => ThirdSection(key: _projectKey),
-                  },
-
-                  AnimatedTextSection(isMobile: isMobile),
-
-                  switch (deviceType) {
-                    DeviceType.mobile => MobileLiveProjectsSection(
-                      key: _liveProjectsKey,
+                  LazyMount(
+                    key: _aboutKey,
+                    isReady: _isReady(_aboutSlot),
+                    placeholderHeight: _placeholderHeight(
+                      _aboutSlot,
+                      deviceType,
+                      isMobile,
                     ),
-                    DeviceType.tablet => TabletLiveProjectSection(
-                      key: _liveProjectsKey,
+                    builder: (_) => switch (deviceType) {
+                      DeviceType.mobile => const MobileSecondSection(),
+                      DeviceType.tablet => const TabletSecondSection(),
+                      DeviceType.desktop => const SecondSection(),
+                    },
+                  ),
+
+                  LazyMount(
+                    key: _projectKey,
+                    isReady: _isReady(_projectsSlot),
+                    placeholderHeight: _placeholderHeight(
+                      _projectsSlot,
+                      deviceType,
+                      isMobile,
                     ),
-                    DeviceType.desktop => LiveProjectsSection(
-                      key: _liveProjectsKey,
+                    builder: (_) => switch (deviceType) {
+                      DeviceType.mobile => const MobileThirdSection(),
+                      DeviceType.tablet => const TabletThirdSection(),
+                      DeviceType.desktop => const ThirdSection(),
+                    },
+                  ),
+
+                  LazyMount(
+                    isReady: _isReady(_ticker1Slot),
+                    placeholderHeight: _placeholderHeight(
+                      _ticker1Slot,
+                      deviceType,
+                      isMobile,
                     ),
-                  },
+                    builder: (_) => AnimatedTextSection(isMobile: isMobile),
+                  ),
 
-                  AnimatedTextSection(isMobile: isMobile),
+                  LazyMount(
+                    key: _liveProjectsKey,
+                    isReady: _isReady(_liveSlot),
+                    placeholderHeight: _placeholderHeight(
+                      _liveSlot,
+                      deviceType,
+                      isMobile,
+                    ),
+                    builder: (_) => switch (deviceType) {
+                      DeviceType.mobile => const MobileLiveProjectsSection(),
+                      DeviceType.tablet => const TabletLiveProjectSection(),
+                      DeviceType.desktop => const LiveProjectsSection(),
+                    },
+                  ),
 
-                  switch (deviceType) {
-                    DeviceType.mobile => MobileLibrarySection(key: _libraryKey),
-                    DeviceType.tablet => TabletLibrarySection(key: _libraryKey),
-                    DeviceType.desktop => LibrarySection(key: _libraryKey),
-                  },
+                  LazyMount(
+                    isReady: _isReady(_ticker2Slot),
+                    placeholderHeight: _placeholderHeight(
+                      _ticker2Slot,
+                      deviceType,
+                      isMobile,
+                    ),
+                    builder: (_) => AnimatedTextSection(isMobile: isMobile),
+                  ),
 
-                  BlocProvider(
-                    create: (_) => ContactMeCubit(
-                      contactMeUseCase: ContactMeUseCase(
-                        contactMeRepo: ContactMeRepoImpl(
-                          remoteDataSource: ContactMeRemoteDataSourceImpl(
-                            dio: Dio(),
+                  LazyMount(
+                    key: _libraryKey,
+                    isReady: _isReady(_librarySlot),
+                    placeholderHeight: _placeholderHeight(
+                      _librarySlot,
+                      deviceType,
+                      isMobile,
+                    ),
+                    builder: (_) => switch (deviceType) {
+                      DeviceType.mobile => const MobileLibrarySection(),
+                      DeviceType.tablet => const TabletLibrarySection(),
+                      DeviceType.desktop => const LibrarySection(),
+                    },
+                  ),
+
+                  LazyMount(
+                    key: _contactKey,
+                    isReady: _isReady(_contactSlot),
+                    placeholderHeight: _placeholderHeight(
+                      _contactSlot,
+                      deviceType,
+                      isMobile,
+                    ),
+                    builder: (_) => BlocProvider(
+                      create: (_) => ContactMeCubit(
+                        contactMeUseCase: ContactMeUseCase(
+                          contactMeRepo: ContactMeRepoImpl(
+                            remoteDataSource: ContactMeRemoteDataSourceImpl(
+                              dio: Dio(),
+                            ),
                           ),
                         ),
                       ),
+                      child: switch (deviceType) {
+                        DeviceType.mobile => const MobileContactMeSection(),
+                        DeviceType.tablet => const TabletContactMeSection(),
+                        DeviceType.desktop => const ContactMeSection(),
+                      },
                     ),
-                    child: switch (deviceType) {
-                      DeviceType.mobile => MobileContactMeSection(
-                        key: _contactKey,
-                      ),
-                      DeviceType.tablet => TabletContactMeSection(
-                        key: _contactKey,
-                      ),
-                      DeviceType.desktop => ContactMeSection(key: _contactKey),
-                    },
                   ),
                 ],
               ),

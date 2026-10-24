@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/presentation/landing/landing_page.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -18,15 +19,7 @@ class _LoadingScreenState extends State<LoadingScreen>
   late Animation<double> _progressAnim;
   late AnimationController _transitionController;
 
-  // Only decode what is needed for first paint — rest loads lazily.
-  final List<String> assetsToPreload = [
-    'assets/images/bg.png',
-    'assets/images/me.png',
-    'assets/images/project_bg.png',
-    'assets/images/collabix_oreview.png',
-    'assets/images/acta_logo.png',
-    'assets/images/sous_vide_logo.png',
-  ];
+  final List<String> assetsToPreload = AssetImageCache.allImages;
 
   bool _preloadStarted = false;
 
@@ -76,7 +69,10 @@ class _LoadingScreenState extends State<LoadingScreen>
       final end = (i + batchSize).clamp(0, total);
       await Future.wait([
         for (int j = i; j < end; j++)
-          precacheImage(AssetImage(assetsToPreload[j]), context),
+          precacheImage(
+            AssetImageCache.provider(context, assetsToPreload[j]),
+            context,
+          ),
       ]);
       _progressController.animateTo(
         end / total,

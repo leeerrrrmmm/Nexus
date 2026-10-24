@@ -4,6 +4,7 @@ import 'package:content_flipper/content_flipper.dart';
 import 'package:curl_text/curl_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/presentation/components/gradient_text_title.dart';
@@ -52,9 +53,9 @@ class _MobileLibrarySectionState extends State<MobileLibrarySection> {
     return Container(
       width: double.infinity,
       height: 0.8.sh,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/lib_bg.png'),
+          image: AssetImageCache.provider(context, 'assets/images/lib_bg.png'),
           fit: BoxFit.cover,
         ),
       ),
@@ -156,9 +157,11 @@ class _MobileLibrarySectionState extends State<MobileLibrarySection> {
                                                   width: 5.w,
                                                 ),
                                                 image: DecorationImage(
-                                                  image: AssetImage(
-                                                    _libraryImages[index],
-                                                  ),
+                                                  image:
+                                                      AssetImageCache.provider(
+                                                        context,
+                                                        _libraryImages[index],
+                                                      ),
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),

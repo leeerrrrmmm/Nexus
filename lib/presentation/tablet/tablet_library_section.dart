@@ -4,6 +4,7 @@ import 'package:content_flipper/content_flipper.dart';
 import 'package:curl_text/curl_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/presentation/components/gradient_text_title.dart';
@@ -51,9 +52,9 @@ class _TabletLibrarySectionState extends State<TabletLibrarySection> {
     return Container(
       width: double.infinity,
       height: 0.9.sh,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/lib_bg.png'),
+          image: AssetImageCache.provider(context, 'assets/images/lib_bg.png'),
           fit: BoxFit.cover,
         ),
       ),
@@ -154,9 +155,11 @@ class _TabletLibrarySectionState extends State<TabletLibrarySection> {
                                                   width: 6.w,
                                                 ),
                                                 image: DecorationImage(
-                                                  image: AssetImage(
-                                                    _libraryImages[index],
-                                                  ),
+                                                  image:
+                                                      AssetImageCache.provider(
+                                                        context,
+                                                        _libraryImages[index],
+                                                      ),
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),
@@ -196,15 +199,13 @@ class _TabletLibrarySectionState extends State<TabletLibrarySection> {
                                                               ? ContentFlipper(
                                                                   onBackTap: () =>
                                                                       setState(
-                                                                        () =>
-                                                                            _activeIndex =
-                                                                                index,
+                                                                        () => _activeIndex =
+                                                                            index,
                                                                       ),
                                                                   onFrontTap: () =>
                                                                       setState(
-                                                                        () =>
-                                                                            _activeIndex =
-                                                                                index,
+                                                                        () => _activeIndex =
+                                                                            index,
                                                                       ),
                                                                   front: Text(
                                                                     _libraryDescriptions[0],
@@ -274,8 +275,7 @@ class _TabletLibrarySectionState extends State<TabletLibrarySection> {
                                                       ),
                                                     ),
                                                     PortfolioTextLinkButton(
-                                                      label:
-                                                          AppText.openPubDev,
+                                                      label: AppText.openPubDev,
                                                       link:
                                                           PortfolioLinkX.fromLibraryIndex(
                                                             index,

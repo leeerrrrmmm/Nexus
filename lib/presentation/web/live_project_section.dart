@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/presentation/widgets/glass_text.dart';
@@ -148,6 +149,10 @@ class _LiveProjectsSectionState extends State<LiveProjectsSection>
                   child: Image.asset(
                     _projectImages[_currentIndex % _projectImages.length],
                     fit: BoxFit.contain,
+                    cacheWidth: AssetImageCache.cacheWidth(
+                      context,
+                      _projectImages[_currentIndex % _projectImages.length],
+                    ),
                   ),
                 ),
               ),
@@ -211,8 +216,8 @@ class _LiveProjectsSectionState extends State<LiveProjectsSection>
                                   width: 465.w,
                                   child: SingleChildScrollView(
                                     child: Text(
-                                      AppText.liveProjectsDescription[
-                                          _currentIndex],
+                                      AppText
+                                          .liveProjectsDescription[_currentIndex],
                                       style: TextStyle(
                                         color: Colors.white.withValues(
                                           alpha: 0.75,

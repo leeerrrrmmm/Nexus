@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:portfolio/core/const/app_assets/app_assets.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/core/links/portfolio_link_scope.dart';
@@ -45,12 +46,8 @@ class _TabletContactMeSectionState extends State<TabletContactMeSection> {
   @override
   void initState() {
     super.initState();
-    _nameSpacing = AdaptiveInputTypography(
-      textController: fullNameController,
-    );
-    _emailSpacing = AdaptiveInputTypography(
-      textController: emailController,
-    );
+    _nameSpacing = AdaptiveInputTypography(textController: fullNameController);
+    _emailSpacing = AdaptiveInputTypography(textController: emailController);
     _messageSpacing = AdaptiveInputTypography(
       textController: messageController,
     );
@@ -179,7 +176,14 @@ class _TabletContactMeSectionState extends State<TabletContactMeSection> {
               Positioned(
                 bottom: -30.h,
                 right: 0.w,
-                child: Image.asset(AppAssets.contactMeBg, scale: 1.35),
+                child: Image.asset(
+                  AppAssets.contactMeBg,
+                  scale: 1.35,
+                  cacheWidth: AssetImageCache.cacheWidth(
+                    context,
+                    AppAssets.contactMeBg,
+                  ),
+                ),
               ),
               Positioned(
                 bottom: 60.h,

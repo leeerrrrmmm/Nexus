@@ -4,6 +4,7 @@ import 'package:content_flipper/content_flipper.dart';
 import 'package:curl_text/curl_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/presentation/components/gradient_text_title.dart';
@@ -49,9 +50,9 @@ class _LibrarySectionState extends State<LibrarySection> {
     return Container(
       width: double.infinity,
       height: 1.sh,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/lib_bg.png'),
+          image: AssetImageCache.provider(context, 'assets/images/lib_bg.png'),
           fit: BoxFit.cover,
         ),
       ),
@@ -157,9 +158,11 @@ class _LibrarySectionState extends State<LibrarySection> {
                                                     width: 5.w,
                                                   ),
                                                   image: DecorationImage(
-                                                    image: AssetImage(
-                                                      _libraryImages[index],
-                                                    ),
+                                                    image:
+                                                        AssetImageCache.provider(
+                                                          context,
+                                                          _libraryImages[index],
+                                                        ),
                                                     fit: BoxFit.cover,
                                                   ),
                                                 ),
@@ -194,15 +197,13 @@ class _LibrarySectionState extends State<LibrarySection> {
                                                             ? ContentFlipper(
                                                                 onBackTap: () =>
                                                                     setState(
-                                                                      () =>
-                                                                          _activeIndex =
-                                                                              index,
+                                                                      () => _activeIndex =
+                                                                          index,
                                                                     ),
                                                                 onFrontTap: () =>
                                                                     setState(
-                                                                      () =>
-                                                                          _activeIndex =
-                                                                              index,
+                                                                      () => _activeIndex =
+                                                                          index,
                                                                     ),
                                                                 front: Text(
                                                                   _libraryDescriptions[0],
@@ -255,10 +256,9 @@ class _LibrarySectionState extends State<LibrarySection> {
                                                                     TextOverflow
                                                                         .ellipsis,
                                                                 style: TextStyle(
-                                                                  color:
-                                                                      const Color(
-                                                                        0xFF0F172A,
-                                                                      ),
+                                                                  color: const Color(
+                                                                    0xFF0F172A,
+                                                                  ),
                                                                   fontSize:
                                                                       24.sp,
                                                                   fontWeight:
@@ -270,8 +270,7 @@ class _LibrarySectionState extends State<LibrarySection> {
                                                       ),
                                                     ),
                                                     PortfolioTextLinkButton(
-                                                      label:
-                                                          AppText.openPubDev,
+                                                      label: AppText.openPubDev,
                                                       link:
                                                           PortfolioLinkX.fromLibraryIndex(
                                                             index,

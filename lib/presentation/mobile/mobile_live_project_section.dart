@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/presentation/widgets/portfolio_text_link_button.dart';
@@ -163,6 +164,12 @@ class _MobileLiveProjectsSectionState extends State<MobileLiveProjectsSection>
                                           _projectImages[_currentIndex %
                                               _projectImages.length],
                                           fit: BoxFit.cover,
+                                          cacheWidth:
+                                              AssetImageCache.cacheWidth(
+                                                context,
+                                                _projectImages[_currentIndex %
+                                                    _projectImages.length],
+                                              ),
                                         ),
                                       ),
                                     ),

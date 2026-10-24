@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_arc_text/flutter_arc_text.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:portfolio/core/const/app_assets/app_assets.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/responsive/responsive.dart';
 import 'package:portfolio/presentation/widgets/glass_container_widget.dart';
@@ -79,6 +80,10 @@ class SecondSection extends StatelessWidget {
               fit: BoxFit.contain,
               height: 1035.h,
               width: 484.w,
+              cacheWidth: AssetImageCache.cacheWidth(
+                context,
+                AppAssets.lermImage,
+              ),
             ),
           ),
           Positioned(
@@ -98,6 +103,10 @@ class SecondSection extends StatelessWidget {
                       fit: BoxFit.contain,
                       width: 132.w,
                       height: 132.h,
+                      cacheWidth: AssetImageCache.cacheWidth(
+                        context,
+                        AppAssets.rowImage,
+                      ),
                     ),
                   ),
                   SingleChildScrollView(

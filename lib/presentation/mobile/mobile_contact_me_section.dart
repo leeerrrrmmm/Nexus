@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:portfolio/core/const/app_assets/app_assets.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/core/links/portfolio_link_scope.dart';
@@ -98,7 +99,14 @@ class _MobileContactMeSectionState extends State<MobileContactMeSection> {
               Positioned(
                 bottom: 0.h,
                 right: 0,
-                child: Image.asset(AppAssets.contactMeBg, scale: 2),
+                child: Image.asset(
+                  AppAssets.contactMeBg,
+                  scale: 2,
+                  cacheWidth: AssetImageCache.cacheWidth(
+                    context,
+                    AppAssets.contactMeBg,
+                  ),
+                ),
               ),
               Padding(
                 padding: EdgeInsets.only(top: 50.h, left: 20.w),

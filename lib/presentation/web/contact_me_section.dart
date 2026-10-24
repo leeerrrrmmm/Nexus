@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:portfolio/core/const/app_assets/app_assets.dart';
+import 'package:portfolio/core/const/app_assets/asset_image_cache.dart';
 import 'package:portfolio/core/const/app_text/app_text.dart';
 import 'package:portfolio/core/links/portfolio_link.dart';
 import 'package:portfolio/core/links/portfolio_link_scope.dart';
@@ -45,12 +46,8 @@ class _ContactMeSectionState extends State<ContactMeSection> {
   @override
   void initState() {
     super.initState();
-    _nameSpacing = AdaptiveInputTypography(
-      textController: fullNameController,
-    );
-    _emailSpacing = AdaptiveInputTypography(
-      textController: emailController,
-    );
+    _nameSpacing = AdaptiveInputTypography(textController: fullNameController);
+    _emailSpacing = AdaptiveInputTypography(textController: emailController);
     _messageSpacing = AdaptiveInputTypography(
       textController: messageController,
     );
@@ -102,11 +99,7 @@ class _ContactMeSectionState extends State<ContactMeSection> {
             children: [
               Positioned.fill(
                 child: Padding(
-                  padding: EdgeInsets.only(
-                    top: 68.h,
-                    left: 20.w,
-                    bottom: 24.h,
-                  ),
+                  padding: EdgeInsets.only(top: 68.h, left: 20.w, bottom: 24.h),
                   child: Form(
                     key: _formKey,
                     autovalidateMode: AutovalidateMode.disabled,
@@ -187,7 +180,13 @@ class _ContactMeSectionState extends State<ContactMeSection> {
               Positioned(
                 bottom: 10.h,
                 right: 0,
-                child: Image.asset(AppAssets.contactMeBg),
+                child: Image.asset(
+                  AppAssets.contactMeBg,
+                  cacheWidth: AssetImageCache.cacheWidth(
+                    context,
+                    AppAssets.contactMeBg,
+                  ),
+                ),
               ),
               Positioned(
                 bottom: 60.h,
@@ -388,12 +387,8 @@ class _ContactMeTextFieldWidget extends StatelessWidget {
                 : TextInputType.text,
             key: Key(label.toLowerCase()),
             controller: controller,
-            maxLines: expand
-                ? null
-                : (isMultiline ? 14 : 1),
-            minLines: expand
-                ? null
-                : (isMultiline ? 10 : 1),
+            maxLines: expand ? null : (isMultiline ? 14 : 1),
+            minLines: expand ? null : (isMultiline ? 10 : 1),
             expands: expand && isMultiline,
             textAlignVertical: isMultiline
                 ? TextAlignVertical.top
@@ -409,9 +404,7 @@ class _ContactMeTextFieldWidget extends StatelessWidget {
                   ? null
                   : BoxConstraints(
                       minHeight: fieldHeight,
-                      maxHeight: isMultiline
-                          ? fieldHeight + 8.h
-                          : fieldHeight,
+                      maxHeight: isMultiline ? fieldHeight + 8.h : fieldHeight,
                     ),
               errorStyle: TextStyle(
                 fontSize: 12.sp,
@@ -457,10 +450,7 @@ class _ContactMeTextFieldWidget extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        if (expand)
-          Expanded(child: field)
-        else
-          field,
+        if (expand) Expanded(child: field) else field,
       ],
     );
   }

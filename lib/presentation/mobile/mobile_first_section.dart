@@ -104,9 +104,9 @@ class _MobileFirstSectionState extends State<MobileFirstSection>
                   builder: (context) {
                     final band = Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xff2C2C2C).withValues(
-                          alpha: kIsWeb ? 0.82 : 0.6,
-                        ),
+                        color: const Color(
+                          0xff2C2C2C,
+                        ).withValues(alpha: kIsWeb ? 0.82 : 0.6),
                         border: Border(
                           top: BorderSide(
                             color: Colors.white.withValues(alpha: 0.15),
@@ -121,10 +121,13 @@ class _MobileFirstSectionState extends State<MobileFirstSection>
                       child: Center(
                         child: Padding(
                           padding: EdgeInsets.only(top: 10.w),
-                          child: GlassText(
-                            text: AppText.portfolioText,
-                            fontSize: 80.sp,
-                            letterSpacing: -6.0,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: GlassText(
+                              text: AppText.portfolioText,
+                              fontSize: 80.sp,
+                              letterSpacing: -6.0,
+                            ),
                           ),
                         ),
                       ),

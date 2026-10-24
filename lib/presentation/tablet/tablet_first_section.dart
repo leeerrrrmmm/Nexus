@@ -62,27 +62,29 @@ class _TabletFirstSectionState extends State<TabletFirstSection>
         children: [
           if (_particles.isNotEmpty)
             Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, child) {
-                  return Stack(
-                    children: _particles.map((particle) {
-                      final offset = particle.getOffset(
-                        _controller.value * 2 * math.pi,
-                        screenSize,
-                      );
-                      return Positioned(
-                        left: offset.dx - particle.size / 2,
-                        top: offset.dy - particle.size / 2,
-                        child: _buildGlowOrb(
-                          const Color(0xff4F8BFF),
-                          particle.size,
-                          particle.opacity,
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
+              child: RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Stack(
+                      children: _particles.map((particle) {
+                        final offset = particle.getOffset(
+                          _controller.value * 2 * math.pi,
+                          screenSize,
+                        );
+                        return Positioned(
+                          left: offset.dx - particle.size / 2,
+                          top: offset.dy - particle.size / 2,
+                          child: _buildGlowOrb(
+                            const Color(0xff4F8BFF),
+                            particle.size,
+                            particle.opacity,
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
               ),
             ),
 
@@ -112,13 +114,13 @@ class _TabletFirstSectionState extends State<TabletFirstSection>
                       child: Center(
                         child: Padding(
                           padding: EdgeInsets.only(top: 30.w),
-                          child: GlassText(
-                            text: AppText.portfolioText,
-                            fontSize: 140.sp.clamp(
-                              140,
-                              240,
-                            ), // защита от слишком большого текста
-                            letterSpacing: -10.0,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: GlassText(
+                              text: AppText.portfolioText,
+                              fontSize: 140.sp.clamp(130.0, 210.0),
+                              letterSpacing: -10.0,
+                            ),
                           ),
                         ),
                       ),
